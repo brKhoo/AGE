@@ -35,14 +35,14 @@ int main() {
     player->setPosition({10, 10});
     player->setHeight(0);
     player->addMovement(std::make_unique<PlayerMovement>());
-    player->setCollision(std::make_unique<PlayerDieCollision>());
+    player->setCollision(std::make_unique<PassThroughCollision>());
     board.addEntity(std::move(player));
 
     // Straight-moving enemy
     auto enemy = std::make_unique<EnemyEntity>('E');
     enemy->setPosition({5, 5});
     enemy->setHeight(0);
-    enemy->addMovement(std::make_unique<StraightMovement>(0, 1)); // move right
+    enemy->addMovement(std::make_unique<StraightMovement>(1, 1)); // move right
     enemy->setCollision(std::make_unique<DestroyCollision>());
     board.addEntity(std::move(enemy));
 
@@ -50,24 +50,29 @@ int main() {
     auto falling = std::make_unique<EnemyEntity>('*');
     falling->setPosition({1, 30});
     falling->setHeight(0);
-    falling->addMovement(std::make_unique<GravityMovement>(1, 0)); // falling down
+    falling->addMovement(std::make_unique<GravityMovement>('d')); // falling down
     falling->setCollision(std::make_unique<DestroyCollision>());
     board.addEntity(std::move(falling));
 
     // Animated blinking object that cycles
     std::vector<std::vector<Pixel>> frames = {
         { Pixel{0,0,'o'}, Pixel{0,1,'o'} },
-        { Pixel{0,0,'O'}, Pixel{0,1,'O'} }
+        { Pixel{0,0,'O'}, Pixel{0,1,'O'} },
+        { Pixel{0,0,'X'}, Pixel{0,1,'X'} }
     };
-    AnimatedShape anim(frames);
-    auto cycler = std::make_unique<EnemyEntity>(' '); // placeholder char, unused
-    // We can't store AnimatedShape directly in EnemyEntity, but this at least
-    // demonstrates CyclingMovement; the sprite itself is static here.
-    cycler->setPosition({8, 40});
-    cycler->setHeight(0);
+    auto animShape = std::make_unique<AnimatedShape>(frames);
+    auto cycler = std::make_unique<EnemyEntity>(' ');  // placeholder
+    cycler->setPosition({5, 10});
+    // give it the animated shape
+    cycler->setShape(std::move(animShape));
+    // add the cycling movement every 3 ticks
     cycler->addMovement(std::make_unique<CyclingMovement>(5));
+    cycler->addMovement(std::make_unique<GravityMovement>('d')); // combine with gravity movement
+    // no blocking collisions
     cycler->setCollision(std::make_unique<PassThroughCollision>());
+    // add to board
     board.addEntity(std::move(cycler));
+
 
     CursesInput input;
     CursesView view;

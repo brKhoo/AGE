@@ -13,9 +13,27 @@ void StraightMovement::apply(Entity &e, GameState &) {
 
 void GravityMovement::apply(Entity &e, GameState &) {
     auto p = e.position();
-    p.row += dr;
-    p.col += dc;
-    e.setPosition(p);
+    Position next = p;
+
+    switch(dir){
+        case 'd':
+            next.row += 1;
+            break;
+        case 'u':
+            next.row -= 1;
+            break;
+        case 'l':
+            next.col -= 1;
+            break;
+        case 'r':
+            next.col += 1;
+            break;
+        default:
+            next.row += 1;
+            break;
+    }
+
+    e.setPosition(next);
 }
 
 void CyclingMovement::apply(Entity &e, GameState &) {

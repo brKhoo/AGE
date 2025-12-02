@@ -5,14 +5,17 @@
 
 // Simple enemy that can be given movement + collision policies.
 class EnemyEntity : public Entity {
-    CharShape sprite;
+    std::unique_ptr<Shape> shp;
 public:
-    explicit EnemyEntity(char c) : sprite(c) {}
+    explicit EnemyEntity(char c) : shp{std::make_unique<CharShape>(c)} {}
 
-    void updateSelf(GameState &) override {}
+    Shape &shape() override { return *shp; }
+    const Shape &shape() const override { return *shp; }
 
-    Shape &shape() override { return sprite; }
-    const Shape &shape() const override { return sprite; }
+    void setShape(std::unique_ptr<Shape> s) {
+        shp = std::move(s);
+    }
 };
+
 
 #endif

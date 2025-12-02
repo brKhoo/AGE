@@ -29,7 +29,6 @@ void Entity::updateMovements(GameState &state) {
         m->apply(*this, state);
 }
 
-// DEFINITION MOVED HERE (CollisionBehavior is now complete)
 void Entity::onCollide(Entity &other, GameState &state) {
     collisionRule().handle(*this, other, state);
 }
