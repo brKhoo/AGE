@@ -19,6 +19,10 @@ int main() {
     initscr();
     noecho();
     cbreak();
+    nodelay(stdscr, TRUE);  // These last two lines for no input delay
+    timeout(0);
+    keypad(stdscr, TRUE);
+
 
     // Game spec: 80x25 total, 3 status lines at bottom
     int rows = 25;

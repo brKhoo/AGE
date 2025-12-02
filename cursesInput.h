@@ -12,20 +12,24 @@ public:
     }
 
     Action readAction() override {
-        int ch = getch();
-        switch (ch) {
-            case KEY_UP:    return Action::UP;
-            case KEY_DOWN:  return Action::DOWN;
-            case KEY_LEFT:  return Action::LEFT;
-            case KEY_RIGHT: return Action::RIGHT;
-            case 'w':       return Action::UP;
-            case 's':       return Action::DOWN;
-            case 'a':       return Action::LEFT;
-            case 'd':       return Action::RIGHT;
-            case 'q':       return Action::INVALID;
-            case ERR:       return Action::NONE;
-            default:        return Action::NONE;
+        int ch;
+        Action last = Action::NONE;
+
+        // Read ALL pending keys
+        while((ch = getch()) != ERR){
+            switch(ch){
+                case 'w': last = Action::UP; break;
+                case 's': last = Action::DOWN; break;
+                case 'a': last = Action::LEFT; break;
+                case 'd': last = Action::RIGHT; break;
+                case 'q': last = Action::INVALID; break;
+                case KEY_UP:    last = Action::UP; break;
+                case KEY_DOWN:  last = Action::DOWN; break;
+                case KEY_LEFT:  last = Action::LEFT; break;
+                case KEY_RIGHT: last = Action::RIGHT; break;
+            }
         }
+        return last;  // NONE if nothing pressed this tick
     }
 };
 

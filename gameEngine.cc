@@ -15,6 +15,7 @@ void GameEngine::run() {
             state.gameOver = true;
             break;
         }
+        
         state.lastInput = a;
 
         board.tick(state);
