@@ -1,5 +1,30 @@
 #include "gameBoard.h"
 
+// AABB collision detection helper
+bool pixelsOverlap(const Entity &a, const Entity &b) {
+    const auto &pa = a.shape().pixels();
+    const auto &pb = b.shape().pixels();
+
+    const Position posA = a.position();
+    const Position posB = b.position();
+
+    for (const Pixel &pxA : pa) {
+        int worldAr = posA.row + pxA.rowOffset;
+        int worldAc = posA.col + pxA.colOffset;
+
+        for (const Pixel &pxB : pb) {
+            int worldBr = posB.row + pxB.rowOffset;
+            int worldBc = posB.col + pxB.colOffset;
+
+            if (worldAr == worldBr && worldAc == worldBc) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void GameBoard::tick(GameState &state) {
     // 1) Apply movements + per-entity logic
     for (auto &e : ents) {
@@ -18,8 +43,7 @@ void GameBoard::tick(GameState &state) {
             Entity &b = *ents[j];
             if (b.isMarkedForRemoval()) continue;
             if (a.height() != b.height()) continue;
-            if (a.position().row == b.position().row &&
-                a.position().col == b.position().col) {
+            if (pixelsOverlap(a, b)) {
                 a.onCollide(b, state);
                 b.onCollide(a, state);
             }

@@ -31,7 +31,7 @@ int main() {
     GameState state;
 
     // Player entity in the middle
-    auto player = std::make_unique<PlayerEntity>('@');
+    auto player = std::make_unique<PlayerEntity>(std::make_unique<RectShape>(4, 2, 'P'));
     player->setPosition({10, 10});
     player->setHeight(0);
     player->addMovement(std::make_unique<PlayerMovement>());
@@ -67,9 +67,9 @@ int main() {
     cycler->setShape(std::move(animShape));
     // add the cycling movement every 3 ticks
     cycler->addMovement(std::make_unique<CyclingMovement>(5));
-    cycler->addMovement(std::make_unique<GravityMovement>('d')); // combine with gravity movement
+    //cycler->addMovement(std::make_unique<GravityMovement>('d')); // combine with gravity movement
     // no blocking collisions
-    cycler->setCollision(std::make_unique<PassThroughCollision>());
+    cycler->setCollision(std::make_unique<DestroyCollision>());
     // add to board
     board.addEntity(std::move(cycler));
 

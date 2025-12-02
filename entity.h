@@ -18,6 +18,7 @@ protected:
     Position pos;
     int heightLevel = 0;
     bool removeFlag = false;
+    std::unique_ptr<Shape> shapePtr;
 
     std::vector<std::unique_ptr<Movement>> *movements;
     std::unique_ptr<CollisionBehavior> *collision;
@@ -46,8 +47,11 @@ public:
     void markForRemoval() { removeFlag = true; }
     bool isMarkedForRemoval() const { return removeFlag; }
 
-    virtual Shape &shape() = 0;
-    virtual const Shape &shape() const = 0;
+    virtual Shape &shape() { return *shapePtr; }
+    virtual const Shape &shape() const { return *shapePtr; }
+    void setShape(std::unique_ptr<Shape> s){
+        shapePtr = std::move(s);
+    }
 };
 
 #endif

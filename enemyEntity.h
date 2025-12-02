@@ -3,17 +3,18 @@
 
 #include "entity.h"
 
-// Simple enemy that can be given movement + collision policies.
 class EnemyEntity : public Entity {
-    std::unique_ptr<Shape> shp;
 public:
-    explicit EnemyEntity(char c) : shp{std::make_unique<CharShape>(c)} {}
+    EnemyEntity(){
+        setShape(std::make_unique<CharShape>('E'));
+    }
 
-    Shape &shape() override { return *shp; }
-    const Shape &shape() const override { return *shp; }
+    explicit EnemyEntity(char c){
+        setShape(std::make_unique<CharShape>(c));
+    }
 
-    void setShape(std::unique_ptr<Shape> s) {
-        shp = std::move(s);
+    explicit EnemyEntity(std::unique_ptr<Shape> s){
+        setShape(std::move(s));
     }
 };
 
