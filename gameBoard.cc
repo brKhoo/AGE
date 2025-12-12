@@ -122,11 +122,26 @@ void applyBorderBounce(
     bool bounceRow = false;
     bool bounceCol = false;
 
-    if (prev.row >= top && curr.row < top)        bounceRow = true;
-    if (prev.row <= bottom && curr.row > bottom)  bounceRow = true;
+    bool wasOutsideRow = false;
+    bool isOutsideRow  = false;
+    bool wasOutsideCol = false;
+    bool isOutsideCol  = false;
 
-    if (prev.col >= left && curr.col < left)      bounceCol = true;
-    if (prev.col <= right && curr.col > right)    bounceCol = true;
+    for (const Pixel &px : e.shape().pixels()) {
+        int pr = prev.row + px.rowOffset;
+        int pc = prev.col + px.colOffset;
+        int cr = curr.row + px.rowOffset;
+        int cc = curr.col + px.colOffset;
+
+        if (pr < top || pr > bottom) wasOutsideRow = true;
+        if (cr < top || cr > bottom) isOutsideRow  = true;
+
+        if (pc < left || pc > right) wasOutsideCol = true;
+        if (cc < left || cc > right) isOutsideCol  = true;
+    }
+
+    bounceRow = !wasOutsideRow && isOutsideRow;
+    bounceCol = !wasOutsideCol && isOutsideCol;
 
     for (auto &m : e.movementComponents()) {
         if (auto sm = dynamic_cast<StraightMovement*>(m.get())) {
@@ -139,6 +154,7 @@ void applyBorderBounce(
         }
     }
 }
+
 
 
 
@@ -174,7 +190,8 @@ void GameBoard::tick(GameState &state) {
             );
 
             // Only block if entity CROSSED the border this tick
-            if (!wasOutside && isOutside) {
+            if (touchesBorderAt(e, e.position(), top, left, bottom, right) &&
+                !touchesBorderAt(e, e.prevPosition(), top, left, bottom, right))  {
                 Position prev = e.prevPosition();
                 Position curr = e.position();
 

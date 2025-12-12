@@ -35,6 +35,12 @@ public:
     }
 
     void addEntity(std::unique_ptr<Entity> e);
+
+    void step();
+    void draw();
+    bool isGameOver() const;
+    int cols() const;
+    void endGame(bool didWin);
 };
 
 #endif

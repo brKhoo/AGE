@@ -61,6 +61,7 @@ public:
     }
 
     void addMovement(std::unique_ptr<Movement> m);
+    void clearMovements();
     void setCollision(std::unique_ptr<CollisionBehavior> c);
 
     void updateMovements(GameState &state);

@@ -47,7 +47,6 @@ public:
     }
 };
 
-
 class CyclingMovement : public Movement {
     int ticks = 0;  // Counts ticks
     int interval;   // Number of ticks between form changes.

@@ -19,6 +19,9 @@ class CollisionBehavior {
 public:
     virtual ~CollisionBehavior() = default;
     virtual CollisionResult handle(Entity &self, Entity &other, GameState &state) = 0;
+    virtual CollisionResult onBorder(Entity &self, GameState &state) {
+        return CollisionResult::Block;
+    }
 };
 
 class PassThroughCollision : public CollisionBehavior {

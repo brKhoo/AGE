@@ -11,7 +11,7 @@
 int main() {
     // Game spec: 80x25 total, 3 status lines at bottom
     GameEngine engine(25, 80);
-    engine.setBorder("View");
+    //engine.setBorder("View");
     // Set up status variables
     engine.defineStatus(1, "Lives", 3);
     engine.defineStatus(2, "Name", "Brock");
@@ -49,7 +49,7 @@ int main() {
     enemy->setPosition({5,6});
     enemy->setHeight(0);
     enemy->setHealth(3);
-    enemy->addMovement(std::make_unique<StraightMovement>(1, 1));
+    enemy->addMovement(std::make_unique<StraightMovement>(1, 0));
     enemy->setCollision(std::make_unique<BounceCollision>());
     engine.addEntity(std::move(enemy));
 

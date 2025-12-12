@@ -71,3 +71,33 @@ void GameEngine::run(){
     // Wait for user before exiting (important!)
     input.waitForAnyKey();
 }
+
+void GameEngine::step() {
+    Action a = input.readAction();
+    if (a == Action::INVALID) {
+        state.gameOver = true;
+        state.win = false;
+        return;
+    }
+
+    state.lastInput = a;
+    board.tick(state);
+}
+
+void GameEngine::draw() {
+    view.draw(board, state);
+}
+
+bool GameEngine::isGameOver() const {
+    return state.gameOver;
+}
+
+int GameEngine::cols() const {
+    return board.cols();
+}
+
+void GameEngine::endGame(bool didWin) {
+    state.win = didWin;
+    state.gameOver = true;
+}
+

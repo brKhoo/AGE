@@ -12,8 +12,8 @@ Entity::Entity(
     heightLevel{height},
     health{hp},
     shapePtr{s ? std::move(s) : std::make_unique<CharShape>('E')},
-    collision{c ? std::move(c) : std::make_unique<PassThroughCollision>()},
-    movements{}
+    movements{},
+    collision{c ? std::move(c) : std::make_unique<PassThroughCollision>()}
 {}
 
 
@@ -39,4 +39,8 @@ void Entity::updateMovements(GameState &state) {
 
 void Entity::onCollide(Entity &other, GameState &state) {
     collisionRule().handle(*this, other, state);
+}
+
+void Entity::clearMovements(){
+    movements.clear();
 }
