@@ -2,6 +2,9 @@
 #ifndef COLLISION_H
 #define COLLISION_H
 
+#include <vector>
+#include <memory>
+
 class Entity;
 struct GameState;
 
@@ -33,14 +36,40 @@ public:
     CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
 };
 
-class DestroyCollision : public CollisionBehavior {
+class DamageCollision : public CollisionBehavior {
+    int damage;
+public:
+    explicit DamageCollision(int d);
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
+};
+
+class DestroySelfCollision : public CollisionBehavior {
 public:
     CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
 };
 
-class PlayerDieCollision : public CollisionBehavior {
+class DestroyBothCollision : public CollisionBehavior {
 public:
     CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
 };
+
+class WinCollision : public CollisionBehavior {
+public:
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
+};
+
+class LossCollision : public CollisionBehavior {
+public:
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
+};
+
+// Allows collisions to be combined
+class CompositeCollision : public CollisionBehavior {
+    std::vector<std::unique_ptr<CollisionBehavior>> rules;
+public:
+    void add(std::unique_ptr<CollisionBehavior> r);
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
+};
+
 
 #endif

@@ -100,6 +100,7 @@ void GameBoard::tick(GameState &state) {
         if (!e->isMarkedForRemoval()) {
             e->updateMovements(state);
             e->updateSelf(state);
+            e->tickCooldown();
         }
     }
 

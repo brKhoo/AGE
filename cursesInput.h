@@ -11,6 +11,12 @@ public:
         keypad(stdscr, TRUE);
     }
 
+    void waitForAnyKey() override {
+        nodelay(stdscr, false);
+        getch();
+        nodelay(stdscr, false);
+    }
+    
     Action readAction() override {
         int ch;
         Action last = Action::NONE;

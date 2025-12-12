@@ -1,24 +1,38 @@
 #ifndef GAME_ENGINE_H
 #define GAME_ENGINE_H
 
+#include <ncurses.h>
 #include <chrono>
 #include <thread>
 #include "gameBoard.h"
 #include "gameState.h"
-
-class Input;
-class View;
+#include "cursesInput.h"
+#include "cursesView.h"
 
 class GameEngine {
-    GameBoard &board;
-    GameState &state;
-    Input &input;
-    View &view;
+    GameBoard board;
+    GameState state;
+    CursesInput input;
+    CursesView view;
 public:
-    GameEngine(GameBoard &b, GameState &s, Input &i, View &v)
-        : board{b}, state{s}, input{i}, view{v} {}
-
+    GameEngine(int rows, int cols);
+    ~GameEngine();
     void run();
+
+    // Name a status line
+    void defineStatus(int line, const std::string &name);
+
+    // Name and initial value
+    template<typename T> void defineStatus(int line, const std::string &name, T initial) {
+        defineStatus(line, name);
+        state.setStatus(name, initial);
+    }
+
+    template<typename T> void setStatus(const std::string &name, T value) {
+        state.setStatus(name, value);
+    }
+
+    void addEntity(std::unique_ptr<Entity> e);
 };
 
 #endif

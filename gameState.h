@@ -9,6 +9,7 @@
 using namespace std;
 
 struct GameState {
+    bool win = false;
     bool gameOver = false;
     int score = 0;
     Action lastInput = Action::NONE;
@@ -17,6 +18,7 @@ struct GameState {
     string status2 = "0";
     string status3 = "0";
 
+private:
     // Initiate the map that will hold the values
     unordered_map<string, int> statusMap;
 
@@ -27,6 +29,16 @@ struct GameState {
         }
     }
 
+    string &getSlot(const string &name){
+        int slot = statusMap[name]; // assumes name was bound
+        if (slot == 1) return status1;
+        if (slot == 2) return status2;
+        return status3;
+    }
+
+public:
+    friend class GameEngine;
+    
     // Setters
     void setStatus(const string &name, int v) {
         getSlot(name) = to_string(v);
@@ -55,14 +67,6 @@ struct GameState {
                 return &p.first;
         }
         return nullptr;
-    }
-
-    private:
-    string &getSlot(const string &name){
-        int slot = statusMap[name]; // assumes name was bound
-        if (slot == 1) return status1;
-        if (slot == 2) return status2;
-        return status3;
     }
 };
 
