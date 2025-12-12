@@ -1,6 +1,18 @@
 #include "cursesView.h"
 #include "shape.h"
 
+using namespace std;
+
+// Helper for formatting status lines
+static void printStatusLine(int row, int slot, const GameState &state, const string &value){
+    const string *key = state.getStatusKeyForSlot(slot);
+    if(key)
+        mvprintw(row, 0, "%s: %s", key->c_str(), value.c_str());
+    else
+        mvprintw(row, 0, "%s", value.c_str());
+}
+
+
 void CursesView::draw(const GameBoard &board, const GameState &state) {
     clear();
 
@@ -42,9 +54,10 @@ void CursesView::draw(const GameBoard &board, const GameState &state) {
     int status2 = playBottom + 2;
     int status3 = playBottom + 3;
 
-    mvprintw(status1, 0, "Score: %d", state.score);
-    mvprintw(status2, 0, "Use arrow keys or WASD to move, q to quit.");
-    mvprintw(status3, 0, "%s", state.gameOver ? "GAME OVER" : "");
+    // Print the three status slots
+    printStatusLine(status1, 1, state, state.status1);
+    printStatusLine(status2, 2, state, state.status2);
+    printStatusLine(status3, 3, state, state.status3);
 
     refresh();
 }

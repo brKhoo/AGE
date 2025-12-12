@@ -40,6 +40,15 @@ public:
     }
 };
 
+class BitmapShape: public Shape {
+    std::vector<Pixel> data;
+public:
+    BitmapShape(std::vector<Pixel> pixels): data{std::move(pixels)}{}
+    std::vector<Pixel> pixels() const override {
+        return data;
+    }
+};
+
 class AnimatedShape : public Shape {
     std::vector<std::vector<Pixel>> frames;
     int current = 0;

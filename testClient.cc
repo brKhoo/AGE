@@ -30,6 +30,29 @@ int main() {
     TestBoard board(rows, cols);
     GameState state;
 
+    // Set up status variables
+    state.bindStatus("Lives", 1);
+    state.bindStatus("Name", 2);
+    state.bindStatus("GameOver?", 3);
+
+    state.setStatus("Lives", 3);
+    state.setStatus("Name", "Brock");
+    state.setStatus("GameOver?", false);
+
+    // Bitmap enemy
+    std::vector<Pixel> smiley = {
+        {0, 0, 'I'},
+        {0, 1, 'L'},
+        {0, 2, 'O'},
+        {1, 1, 'V'}
+    };
+    auto shape = std::make_unique<BitmapShape>(smiley);
+    auto smile = std::make_unique<EnemyEntity>(std::move(shape));
+    smile->setPosition({12, 12});
+    smile->setHeight(1);
+    smile->setCollision(std::make_unique<PassThroughCollision>());
+    board.addEntity(std::move(smile));
+
     // Player entity in the middle
     auto player = std::make_unique<PlayerEntity>(std::make_unique<RectShape>(4, 2, 'P'));
     player->setPosition({10, 10});
@@ -42,8 +65,8 @@ int main() {
     auto enemy = std::make_unique<EnemyEntity>('E');
     enemy->setPosition({5, 5});
     enemy->setHeight(0);
-    enemy->addMovement(std::make_unique<StraightMovement>(1, 1)); // move right
-    enemy->setCollision(std::make_unique<DestroyCollision>());
+    enemy->addMovement(std::make_unique<StraightMovement>(0, 1)); // move right
+    enemy->setCollision(std::make_unique<PassThroughCollision>());
     board.addEntity(std::move(enemy));
 
     // Gravity object that falls down
