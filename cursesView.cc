@@ -35,9 +35,21 @@ void CursesView::draw(const GameBoard &board, const GameState &state) {
         mvaddch(r, cols - 1, '|');
     }
 
-    // Draw entities
+    // Build draw list
+    vector<Entity*> drawList;
     for (auto &up : board.entities()) {
-        Entity *e = up.get();
+        drawList.push_back(up.get());
+    }
+
+    // Sort by height: lower first, higher last
+    sort(drawList.begin(), drawList.end(),
+        [](Entity *a, Entity *b) {
+            return a->height() < b->height();
+        }
+    );
+
+    // Draw entities in height , so lower entities draw below higher ones
+    for (Entity *e : drawList) {
         Position base = e->position();
         for (auto px : e->shape().pixels()) {
             int r = base.row + px.rowOffset;
@@ -48,6 +60,7 @@ void CursesView::draw(const GameBoard &board, const GameState &state) {
             }
         }
     }
+
 
     // Status lines
     int status1 = playBottom + 1;

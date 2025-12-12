@@ -5,30 +5,42 @@
 class Entity;
 struct GameState;
 
+enum class CollisionResult{
+    Pass,
+    Block,
+    Bounce,
+    Destroy
+};
+
 class CollisionBehavior {
 public:
     virtual ~CollisionBehavior() = default;
-    virtual void handle(Entity &self, Entity &other, GameState &state) = 0;
+    virtual CollisionResult handle(Entity &self, Entity &other, GameState &state) = 0;
 };
 
 class PassThroughCollision : public CollisionBehavior {
 public:
-    void handle(Entity &self, Entity &other, GameState &state) override;
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
+};
+
+class BounceCollision : public CollisionBehavior {
+public:
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
 };
 
 class SolidCollision : public CollisionBehavior {
 public:
-    void handle(Entity &self, Entity &other, GameState &state) override;
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
 };
 
 class DestroyCollision : public CollisionBehavior {
 public:
-    void handle(Entity &self, Entity &other, GameState &state) override;
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
 };
 
 class PlayerDieCollision : public CollisionBehavior {
 public:
-    void handle(Entity &self, Entity &other, GameState &state) override;
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
 };
 
 #endif

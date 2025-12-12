@@ -49,8 +49,8 @@ int main() {
     auto shape = std::make_unique<BitmapShape>(smiley);
     auto smile = std::make_unique<EnemyEntity>(std::move(shape));
     smile->setPosition({12, 12});
-    smile->setHeight(1);
-    smile->setCollision(std::make_unique<PassThroughCollision>());
+    smile->setHeight(0);
+    smile->setCollision(std::make_unique<SolidCollision>());
     board.addEntity(std::move(smile));
 
     // Player entity in the middle
@@ -58,15 +58,15 @@ int main() {
     player->setPosition({10, 10});
     player->setHeight(0);
     player->addMovement(std::make_unique<PlayerMovement>());
-    player->setCollision(std::make_unique<PassThroughCollision>());
+    player->setCollision(std::make_unique<BounceCollision>());
     board.addEntity(std::move(player));
 
     // Straight-moving enemy
     auto enemy = std::make_unique<EnemyEntity>('E');
-    enemy->setPosition({5, 5});
+    enemy->setPosition({5,6});
     enemy->setHeight(0);
-    enemy->addMovement(std::make_unique<StraightMovement>(0, 1)); // move right
-    enemy->setCollision(std::make_unique<PassThroughCollision>());
+    enemy->addMovement(std::make_unique<StraightMovement>(1, 1)); // move right
+    enemy->setCollision(std::make_unique<BounceCollision>());
     board.addEntity(std::move(enemy));
 
     // Gravity object that falls down
@@ -85,14 +85,14 @@ int main() {
     };
     auto animShape = std::make_unique<AnimatedShape>(frames);
     auto cycler = std::make_unique<EnemyEntity>(' ');  // placeholder
-    cycler->setPosition({5, 10});
+    cycler->setPosition({1, 10});
     // give it the animated shape
     cycler->setShape(std::move(animShape));
     // add the cycling movement every 3 ticks
     cycler->addMovement(std::make_unique<CyclingMovement>(5));
-    //cycler->addMovement(std::make_unique<GravityMovement>('d')); // combine with gravity movement
+    cycler->addMovement(std::make_unique<GravityMovement>('d')); // combine with gravity movement
     // no blocking collisions
-    cycler->setCollision(std::make_unique<DestroyCollision>());
+    cycler->setCollision(std::make_unique<BounceCollision>());
     // add to board
     board.addEntity(std::move(cycler));
 

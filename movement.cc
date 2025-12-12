@@ -13,27 +13,26 @@ void StraightMovement::apply(Entity &e, GameState &) {
 
 void GravityMovement::apply(Entity &e, GameState &) {
     auto p = e.position();
-    Position next = p;
+    char effectiveDir = dir;
 
-    switch(dir){
-        case 'd':
-            next.row += 1;
-            break;
-        case 'u':
-            next.row -= 1;
-            break;
-        case 'l':
-            next.col -= 1;
-            break;
-        case 'r':
-            next.col += 1;
-            break;
-        default:
-            next.row += 1;
-            break;
+    if (bounceTicks > 0) {
+        // flip direction temporarily
+        if      (dir == 'u') effectiveDir = 'd';
+        else if (dir == 'd') effectiveDir = 'u';
+        else if (dir == 'l') effectiveDir = 'r';
+        else if (dir == 'r') effectiveDir = 'l';
+
+        --bounceTicks;  // revert after bounceTicks ticks
     }
 
-    e.setPosition(next);
+    switch (effectiveDir) {
+        case 'd': p.row++; break;
+        case 'u': p.row--; break;
+        case 'l': p.col--; break;
+        case 'r': p.col++; break;
+    }
+
+    e.setPosition(p);
 }
 
 void CyclingMovement::apply(Entity &e, GameState &) {

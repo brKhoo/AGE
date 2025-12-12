@@ -9,6 +9,11 @@ class Movement {
 public:
     virtual ~Movement() = default;
     virtual void apply(Entity &e, GameState &state) = 0;
+
+    virtual bool affectsRow() const { return false; }
+    virtual bool affectsCol() const { return false; }
+    virtual void reverseRow() {}
+    virtual void reverseCol() {}
 };
 
 class StraightMovement : public Movement {
@@ -16,13 +21,31 @@ class StraightMovement : public Movement {
 public:
     StraightMovement(int r, int c) : dr{r}, dc{c} {}
     void apply(Entity &e, GameState &state) override;
+    void reverseRow() { dr = -dr; }
+    void reverseCol() { dc = -dc; }
+
+    bool affectsRow() const override { return dr != 0; }
+    bool affectsCol() const override { return dc != 0; }
 };
 
 class GravityMovement : public Movement {
     char dir;
+    int bounceTicks = 0; // Temporarily switch directions and then go back to prev dir to simulate bounce
 public:
     GravityMovement(char c): dir{c} {}
     void apply(Entity &e, GameState &state) override;
+
+    bool affectsRow() const override {
+        return dir == 'u' || dir == 'd';
+    }
+
+    bool affectsCol() const override {
+        return dir == 'l' || dir == 'r';
+    }
+
+    void bounce(int ticks = 1){
+        bounceTicks = ticks;
+    }
 };
 
 class CyclingMovement : public Movement {

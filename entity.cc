@@ -25,6 +25,7 @@ CollisionBehavior &Entity::collisionRule() {
 }
 
 void Entity::updateMovements(GameState &state) {
+    prevPos = pos;
     for (auto &m : *movements)
         m->apply(*this, state);
 }

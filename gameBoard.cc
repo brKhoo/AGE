@@ -1,4 +1,6 @@
 #include "gameBoard.h"
+#include "collision.h"
+#include "movement.h"
 
 // AABB collision detection helper
 bool pixelsOverlap(const Entity &a, const Entity &b) {
@@ -25,6 +27,43 @@ bool pixelsOverlap(const Entity &a, const Entity &b) {
     return false;
 }
 
+// Bounce collision helper
+bool overlapAt(const Entity &a, const Entity &b, Position testPos) {
+    Position saved = a.position();
+    const_cast<Entity&>(a).setPosition(testPos);
+    bool hit = pixelsOverlap(a, b);
+    const_cast<Entity&>(a).setPosition(saved);
+    return hit;
+}
+
+// Bounce collision helper
+void applyBounce(Entity &self, Entity &other) {
+    Position prev = self.prevPosition();
+    Position curr = self.position();
+
+    bool hitRow = overlapAt(self, other, { curr.row, prev.col });
+    bool hitCol = overlapAt(self, other, { prev.row, curr.col });
+
+    self.revertPosition();
+
+    for (auto &m : self.movementComponents()) {
+        // Straight movement: permanent reflection
+        if (auto sm = dynamic_cast<StraightMovement*>(m.get())) {
+            if (hitRow) sm->reverseRow();
+            if (hitCol) sm->reverseCol();
+        }
+
+        // Gravity: temporary bounce
+        else if (auto gm = dynamic_cast<GravityMovement*>(m.get())) {
+            if ((hitRow && gm->affectsRow()) ||
+                (hitCol && gm->affectsCol())) {
+                gm->bounce(3); // 3 ticks per bounce
+            }
+        }
+    }
+
+}
+
 void GameBoard::tick(GameState &state) {
     // 1) Apply movements + per-entity logic
     for (auto &e : ents) {
@@ -44,8 +83,20 @@ void GameBoard::tick(GameState &state) {
             if (b.isMarkedForRemoval()) continue;
             if (a.height() != b.height()) continue;
             if (pixelsOverlap(a, b)) {
-                a.onCollide(b, state);
-                b.onCollide(a, state);
+                auto ra = a.collisionRule().handle(a, b, state);
+                auto rb = b.collisionRule().handle(b, a, state);
+
+                if (ra == CollisionResult::Block)
+                    a.revertPosition();
+
+                if (rb == CollisionResult::Block)
+                    b.revertPosition();
+
+                if (ra == CollisionResult::Bounce)
+                    applyBounce(a, b);
+
+                if (rb == CollisionResult::Bounce)
+                    applyBounce(b, a);
             }
         }
     }

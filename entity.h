@@ -16,6 +16,7 @@ class CollisionBehavior;
 class Entity {
 protected:
     Position pos;
+    Position prevPos;
     int heightLevel = 0;
     bool removeFlag = false;
     std::unique_ptr<Shape> shapePtr;
@@ -33,13 +34,19 @@ public:
     void updateMovements(GameState &state);
     virtual void updateSelf(GameState &) {}
 
-    // DECLARATION ONLY
     virtual void onCollide(Entity &other, GameState &state);
 
     CollisionBehavior &collisionRule();
 
     Position position() const { return pos; }
     void setPosition(Position p) { pos = p; }
+    Position prevPosition() const { return prevPos; }
+    void revertPosition(){ pos = prevPos; }
+
+    std::vector<std::unique_ptr<Movement>> &movementComponents() {
+        return *movements;
+    }
+
 
     int height() const { return heightLevel; }
     void setHeight(int h) { heightLevel = h; }
