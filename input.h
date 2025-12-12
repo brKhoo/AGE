@@ -3,7 +3,7 @@
 
 #include "action.h"
 
-class Input {
+class Input{
 public:
     virtual ~Input() = default;
     virtual Action readAction() = 0;

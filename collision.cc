@@ -1,4 +1,3 @@
-// collision.cc
 #include "collision.h"
 #include "movement.h"
 #include "entity.h"
@@ -46,7 +45,7 @@ CollisionResult LossCollision::handle(Entity &, Entity &, GameState &state){
     return CollisionResult::Pass;
 }
 
-// Allows collisions to be combined
+// Allows collisions to be stacked
 void CompositeCollision::add(std::unique_ptr<CollisionBehavior> r){
     rules.push_back(std::move(r));
 }
@@ -55,31 +54,31 @@ CollisionResult CompositeCollision::handle(Entity &self, Entity &other, GameStat
     CollisionResult phys = CollisionResult::Pass;
     for(auto &r:rules){
         CollisionResult res = r->handle(self, other, state);
-        if(res != CollisionResult::Pass)
+        if(res != CollisionResult::Pass){
             phys = res;
+        }
     }
     return phys;
 }
 
-CollisionResult SnakeHeadCollision::handle(Entity &self, Entity &other, GameState &state) {
-    // Ignore apples entirely
-    if (other.tag() == "apple") {
+CollisionResult SnakeHeadCollision::handle(Entity &self, Entity &other, GameState &state){
+    // Ignore apples
+    if(other.tag() == "apple"){
         return CollisionResult::Pass;
     }
-
-    // Hitting anything else = death
+    // Hitting anything else dies
     state.gameOver = true;
     state.win = false;
     return CollisionResult::Pass;
 }
 
-CollisionResult SnakeHeadCollision::onBorder(Entity &, GameState &state) {
+CollisionResult SnakeHeadCollision::onBorder(Entity &, GameState &state){
     state.gameOver = true;
     state.win = false;
     return CollisionResult::Block;
 }
 
-CollisionResult EatAppleCollision::handle(Entity &self, Entity &other, GameState &state) {
+CollisionResult EatAppleCollision::handle(Entity &self, Entity &other, GameState &state){
     state.appleEatenThisTick = true;
     snake.grow();
     self.markForRemoval();

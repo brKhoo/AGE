@@ -4,7 +4,7 @@
 #include "view.h"
 #include <ncurses.h>
 
-class CursesView : public View {
+class CursesView: public View{
 public:
     void draw(const GameBoard &board, const GameState &state) override;
 };

@@ -1,23 +1,32 @@
 CXX = g++
 CXXFLAGS = -std=c++14 -Werror -MMD -g
-LDFLAGS = -lncurses
-EXEC = snake
+LDLIBS = -lncurses
 
-OBJECTS = \
-    snake.o \
-    entity.o \
-    movement.o \
-    collision.o \
-    gameBoard.o \
-    gameEngine.o \
-    cursesView.o
+EXEC_SNAKE = snake
+EXEC_PONG  = pong
 
+COMMON_OBJECTS = \
+	entity.o \
+	movement.o \
+	collision.o \
+	gameBoard.o \
+	gameEngine.o \
+	cursesView.o
+
+SNAKE_OBJECTS = $(COMMON_OBJECTS) snake.o
+PONG_OBJECTS  = $(COMMON_OBJECTS) pong.o
+
+OBJECTS = $(SNAKE_OBJECTS) $(PONG_OBJECTS)
 DEPENDS = $(OBJECTS:.o=.d)
 
-$(EXEC): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(EXEC) $(LDFLAGS)
+all: $(EXEC_SNAKE) $(EXEC_PONG)
 
-# Generic rule for building any .o from .cc
+$(EXEC_SNAKE): $(SNAKE_OBJECTS)
+	$(CXX) $(SNAKE_OBJECTS) -o $@ $(LDLIBS)
+
+$(EXEC_PONG): $(PONG_OBJECTS)
+	$(CXX) $(PONG_OBJECTS) -o $@ $(LDLIBS)
+
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
@@ -25,4 +34,4 @@ $(EXEC): $(OBJECTS)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS) $(DEPENDS) $(EXEC)
+	rm -f $(OBJECTS) $(DEPENDS) $(EXEC_SNAKE) $(EXEC_PONG)

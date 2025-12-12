@@ -4,9 +4,9 @@
 #include "input.h"
 #include <ncurses.h>
 
-class CursesInput : public Input {
+class CursesInput: public Input{
 public:
-    CursesInput() {
+    CursesInput(){
         nodelay(stdscr, TRUE);
         keypad(stdscr, TRUE);
     }
@@ -21,7 +21,7 @@ public:
         int ch;
         Action last = Action::NONE;
 
-        // Read ALL pending keys
+        // Read all pending keys
         while((ch = getch()) != ERR){
             switch(ch){
                 case 'w': last = Action::UP; break;
@@ -35,7 +35,7 @@ public:
                 case KEY_RIGHT: last = Action::RIGHT; break;
             }
         }
-        return last;  // NONE if nothing pressed this tick
+        return last;  // NONE if nothing pressed
     }
 };
 

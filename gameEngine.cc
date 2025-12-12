@@ -2,7 +2,8 @@
 #include "input.h"
 #include "view.h"
 
-GameEngine::GameEngine(int rows, int cols): board(rows, cols) {
+GameEngine::GameEngine(int rows, int cols): board(rows, cols){
+    // Boilerplate
     initscr();
     noecho();
     cbreak();
@@ -24,67 +25,62 @@ GameEngine::~GameEngine(){
     endwin();
 }
 
-void GameEngine::setBorder(const std::string &border) {
+void GameEngine::setBorder(const std::string &border){
     board.setBorder(border);
 }
 
-void GameEngine::addEntity(std::unique_ptr<Entity> e) {
+void GameEngine::addEntity(std::unique_ptr<Entity> e){
     board.addEntity(std::move(e));
 }
 
-void GameEngine::defineStatus(int line, const std::string &name) {
-    if (line < 1 || line > 3) return;
+void GameEngine::defineStatus(int line, const std::string &name){
+    if(line < 1 || line > 3) return;
 
     state.bindStatus(name, line);
-    state.setStatus(name, "");  // empty by default
+    state.setStatus(name, "");  // empty by def
 }
 
 void GameEngine::run(){
     using namespace std::chrono;
     using namespace std::this_thread;
 
-    while (true) {
-        // Always render
+    while(true){
+        // Render
         view.draw(board, state);
-
         // Stop updating once the game is over
-        if (state.gameOver)
+        if(state.gameOver)
             break;
 
         Action a = input.readAction();
-        if (a == Action::INVALID) {
+        if(a == Action::INVALID){
             state.gameOver = true;
             state.win = false;
             break;
         }
 
         state.lastInput = a;
-
         board.tick(state);
-
         sleep_for(milliseconds(50));
     }
 
-    // One last draw to ensure final state is visible
+    // One last frame
     view.draw(board, state);
-
-    // Wait for user before exiting (important!)
+    // Wait for user before exit
     input.waitForAnyKey();
 }
 
-void GameEngine::step() {
+void GameEngine::step(){
     Action a = input.readAction();
-    if (a == Action::INVALID) {
+    if(a == Action::INVALID){
         state.gameOver = true;
         state.win = false;
         return;
     }
-
     state.lastInput = a;
     board.tick(state);
 }
 
-void GameEngine::draw() {
+void GameEngine::draw(){
     view.draw(board, state);
 }
 
@@ -100,7 +96,7 @@ int GameEngine::rows() const {
     return board.rows();
 }
 
-void GameEngine::endGame(bool didWin) {
+void GameEngine::endGame(bool didWin){
     state.win = didWin;
     state.gameOver = true;
 }

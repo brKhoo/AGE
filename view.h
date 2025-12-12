@@ -4,7 +4,7 @@
 #include "gameBoard.h"
 #include "gameState.h"
 
-class View {
+class View{
 public:
     virtual ~View() = default;
     virtual void draw(const GameBoard &board, const GameState &state) = 0;

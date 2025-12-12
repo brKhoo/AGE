@@ -5,7 +5,7 @@
 #include "shape.h"
 #include "gameState.h"
 
-struct Position {
+struct Position{
     int row = 0;
     int col = 0;
 };
@@ -13,19 +13,19 @@ struct Position {
 class Movement;
 class CollisionBehavior;
 
-class Entity {
+class Entity{
 protected:
     Position pos;
     Position prevPos;
     int heightLevel = 0;
-    int health = 1; // Default 1 health point
+    int health = 1; 
     int damageCooldown = 0; // number of ticks before entity can take damage again
-    bool removeFlag = false;
+    bool removeFlag = false; // Check to see if this entity should be removed
     int offScreenTicks = 0;
     int maxOffScreenTicks = 10;
     bool isPlayer = false;
-    std::string _tag;
 
+    std::string _tag;
     std::unique_ptr<Shape> shapePtr;
     std::vector<std::unique_ptr<Movement>> movements;
     std::unique_ptr<CollisionBehavior> collision;
@@ -49,20 +49,10 @@ public:
     void setTag(const std::string &name) { _tag = name; }
     const std::string &tag() const { return _tag; }
 
-    void setHealth(int h){ health = h; }
+    void setHealth(int h) { health = h; }
     int getHealth() const { return health; }
-    virtual void tickCooldown(){
-        if(damageCooldown > 0)
-            --damageCooldown;   
-    }
-    virtual void takeDamage(int dmg) {
-        if(damageCooldown > 0) return;
-        health -= dmg;
-        damageCooldown = 10;
-        if(health <= 0){
-            markForRemoval();
-        }
-    }
+    virtual void tickCooldown();
+    virtual void takeDamage(int dmg);
 
     void addMovement(std::unique_ptr<Movement> m);
     void clearMovements();
@@ -78,12 +68,11 @@ public:
     Position position() const { return pos; }
     void setPosition(Position p) { pos = p; }
     Position prevPosition() const { return prevPos; }
-    void revertPosition(){ pos = prevPos; }
+    void revertPosition() { pos = prevPos; }
 
     std::vector<std::unique_ptr<Movement>> &movementComponents() {
         return movements;
     }
-
 
     int height() const { return heightLevel; }
     void setHeight(int h) { heightLevel = h; }
