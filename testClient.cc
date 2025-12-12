@@ -85,12 +85,12 @@ int main() {
     };
     auto animShape = std::make_unique<AnimatedShape>(frames);
     auto cycler = std::make_unique<EnemyEntity>(' ');  // placeholder
-    cycler->setPosition({1, 10});
+    cycler->setPosition({1, 5});
     // give it the animated shape
     cycler->setShape(std::move(animShape));
     // add the cycling movement every 3 ticks
     cycler->addMovement(std::make_unique<CyclingMovement>(5));
-    cycler->addMovement(std::make_unique<GravityMovement>('d')); // combine with gravity movement
+    cycler->addMovement(std::make_unique<GravityMovement>('r')); // combine with gravity movement
     // no blocking collisions
     cycler->setCollision(std::make_unique<BounceCollision>());
     // add to board
