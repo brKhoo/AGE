@@ -19,6 +19,8 @@ public:
     ~GameEngine();
     void run();
 
+    GameState &getState() { return state; }
+
     void setBorder(const std::string &border);
 
     // Name a status line
@@ -40,6 +42,7 @@ public:
     void draw();
     bool isGameOver() const;
     int cols() const;
+    int rows() const;
     void endGame(bool didWin);
 };
 

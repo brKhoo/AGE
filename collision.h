@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <memory>
+#include "movement.h"
 
 class Entity;
 struct GameState;
@@ -74,5 +75,17 @@ public:
     CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
 };
 
+class SnakeHeadCollision : public CollisionBehavior {
+public:
+    CollisionResult handle(Entity &, Entity &, GameState &state) override;
+    CollisionResult onBorder(Entity &, GameState &state) override;
+};
+
+class EatAppleCollision : public CollisionBehavior {
+    SnakeMovement &snake;
+public:
+    EatAppleCollision(SnakeMovement &s) : snake(s) {}
+    CollisionResult handle(Entity &self, Entity &other, GameState &state) override;
+};
 
 #endif

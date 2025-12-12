@@ -1,5 +1,6 @@
 #include "cursesView.h"
 #include "shape.h"
+#include "movement.h"
 
 using namespace std;
 
@@ -61,6 +62,24 @@ void CursesView::draw(const GameBoard &board, const GameState &state) {
         }
     }
 
+    for (auto &e : board.entities()) {
+        if (e->tag() == "snake") {
+            for (auto &m : e->movementComponents()) {
+                if (auto sm = dynamic_cast<SnakeMovement*>(m.get())) {
+                    const auto &body = sm->segments();
+
+                    // Skip head (index 0)
+                    for (size_t i = 1; i < body.size(); ++i) {
+                        mvaddch(
+                            body[i].row,
+                            body[i].col,
+                            'o'   // snake body char
+                        );
+                    }
+                }
+            }
+        }
+    }
 
     // Status lines
     int status1 = playBottom + 1;

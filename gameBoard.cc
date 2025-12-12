@@ -155,10 +155,8 @@ void applyBorderBounce(
     }
 }
 
-
-
-
 void GameBoard::tick(GameState &state) {
+    state.appleEatenThisTick = false;
     // 1) Apply movements + per-entity logic
     for (auto &e : ents) {
         if (!e->isMarkedForRemoval()) {

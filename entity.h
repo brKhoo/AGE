@@ -24,6 +24,7 @@ protected:
     int offScreenTicks = 0;
     int maxOffScreenTicks = 10;
     bool isPlayer = false;
+    std::string _tag;
 
     std::unique_ptr<Shape> shapePtr;
     std::vector<std::unique_ptr<Movement>> movements;
@@ -44,6 +45,9 @@ public:
     void setOffScreenTicks(int t) { offScreenTicks = t; }
     int getMaxOffScreenTicks() { return maxOffScreenTicks; }
     void setMaxOffScreenTicks(int t) { maxOffScreenTicks = t; }
+
+    void setTag(const std::string &name) { _tag = name; }
+    const std::string &tag() const { return _tag; }
 
     void setHealth(int h){ health = h; }
     int getHealth() const { return health; }

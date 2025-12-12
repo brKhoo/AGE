@@ -96,6 +96,10 @@ int GameEngine::cols() const {
     return board.cols();
 }
 
+int GameEngine::rows() const {
+    return board.rows();
+}
+
 void GameEngine::endGame(bool didWin) {
     state.win = didWin;
     state.gameOver = true;

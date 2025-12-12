@@ -1,5 +1,6 @@
 // collision.cc
 #include "collision.h"
+#include "movement.h"
 #include "entity.h"
 #include "gameState.h"
 
@@ -15,47 +16,72 @@ CollisionResult SolidCollision::handle(Entity &, Entity &, GameState &){
     return CollisionResult::Block;
 }
 
-DamageCollision::DamageCollision(int d) : damage(d) {}
+DamageCollision::DamageCollision(int d): damage(d) {}
 
-CollisionResult DamageCollision::handle(Entity &, Entity &other, GameState &) {
+CollisionResult DamageCollision::handle(Entity &, Entity &other, GameState &){
     other.takeDamage(damage);
     return CollisionResult::Pass;
 }
 
-CollisionResult DestroySelfCollision::handle(Entity &self, Entity &, GameState &) {
+CollisionResult DestroySelfCollision::handle(Entity &self, Entity &, GameState &){
     self.markForRemoval();
     return CollisionResult::Destroy;
 }
 
-CollisionResult DestroyBothCollision::handle(Entity &self, Entity &other, GameState &) {
+CollisionResult DestroyBothCollision::handle(Entity &self, Entity &other, GameState &){
     self.markForRemoval();
     other.markForRemoval();
     return CollisionResult::Destroy;
 }
 
-CollisionResult WinCollision::handle(Entity &self, Entity &, GameState &state) {
+CollisionResult WinCollision::handle(Entity &self, Entity &, GameState &state){
     state.win = true;
     state.gameOver = true;
     return CollisionResult::Pass;
 }
 
-CollisionResult LossCollision::handle(Entity &, Entity &, GameState &state) {
+CollisionResult LossCollision::handle(Entity &, Entity &, GameState &state){
     state.win = false;
     state.gameOver = true;
     return CollisionResult::Pass;
 }
 
 // Allows collisions to be combined
-void CompositeCollision::add(std::unique_ptr<CollisionBehavior> r) {
+void CompositeCollision::add(std::unique_ptr<CollisionBehavior> r){
     rules.push_back(std::move(r));
 }
 
-CollisionResult CompositeCollision::handle(Entity &self, Entity &other, GameState &state) {
+CollisionResult CompositeCollision::handle(Entity &self, Entity &other, GameState &state){
     CollisionResult phys = CollisionResult::Pass;
-    for (auto &r : rules) {
+    for(auto &r:rules){
         CollisionResult res = r->handle(self, other, state);
-        if (res != CollisionResult::Pass)
+        if(res != CollisionResult::Pass)
             phys = res;
     }
     return phys;
+}
+
+CollisionResult SnakeHeadCollision::handle(Entity &self, Entity &other, GameState &state) {
+    // Ignore apples entirely
+    if (other.tag() == "apple") {
+        return CollisionResult::Pass;
+    }
+
+    // Hitting anything else = death
+    state.gameOver = true;
+    state.win = false;
+    return CollisionResult::Pass;
+}
+
+CollisionResult SnakeHeadCollision::onBorder(Entity &, GameState &state) {
+    state.gameOver = true;
+    state.win = false;
+    return CollisionResult::Block;
+}
+
+CollisionResult EatAppleCollision::handle(Entity &self, Entity &other, GameState &state) {
+    state.appleEatenThisTick = true;
+    snake.grow();
+    self.markForRemoval();
+    return CollisionResult::Destroy;
 }

@@ -38,10 +38,10 @@ int main() {
     // Player entity in the middle
     auto player = std::make_unique<PlayerEntity>(std::make_unique<RectShape>(4, 2, 'P'));
     player->setPosition({10, 10});
-    player->setHeight(1);
+    player->setHeight(0);
     player->setHealth(3);
     player->addMovement(std::make_unique<PlayerMovement>());
-    player->setCollision(std::make_unique<WinCollision>());
+    player->setCollision(std::make_unique<PassThroughCollision>());
     engine.addEntity(std::move(player));
 
     // Straight-moving enemy
@@ -49,8 +49,8 @@ int main() {
     enemy->setPosition({5,6});
     enemy->setHeight(0);
     enemy->setHealth(3);
-    enemy->addMovement(std::make_unique<StraightMovement>(1, 0));
-    enemy->setCollision(std::make_unique<BounceCollision>());
+    //enemy->addMovement(std::make_unique<StraightMovement>(1, 0));
+    enemy->setCollision(std::make_unique<DestroySelfCollision>());
     engine.addEntity(std::move(enemy));
 
     // Gravity object that falls down

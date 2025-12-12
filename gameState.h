@@ -17,6 +17,7 @@ struct GameState {
     string status1 = "0";
     string status2 = "0";
     string status3 = "0";
+    bool appleEatenThisTick = false;
 
 private:
     // Initiate the map that will hold the values

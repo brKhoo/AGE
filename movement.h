@@ -2,8 +2,12 @@
 #ifndef MOVEMENT_H
 #define MOVEMENT_H
 
+#include <deque>
+
 class Entity;
 struct GameState;
+struct Position;
+enum class Action;
 
 class Movement {
 public:
@@ -58,6 +62,18 @@ public:
 class PlayerMovement : public Movement {
 public:
     void apply(Entity &e, GameState &state) override;
+};
+
+class SnakeMovement : public Movement {
+    std::deque<Position> body;
+    int dr = 0, dc = 1;
+    bool pendingGrow;
+public:
+    SnakeMovement(Position start, int length = 3);
+    void apply(Entity &head, GameState &state) override;
+
+    const std::deque<Position>& segments() const;
+    void grow();
 };
 
 #endif
