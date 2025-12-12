@@ -50,38 +50,44 @@ static bool pixelsOverlapAt(const Entity &a, Position posA,
 static void applyBounce(Entity &self,
                         const Entity &other,
                         Position selfPrev, Position selfCurr,
-                        Position otherCurr) {
-    // We know selfCurr vs otherCurr overlaps (collision detected).
+                        Position otherPrev, Position otherCurr)
+{
+    // 1) Primary: geometry axis resolution (works for stationary + moving)
+    Position undoRow{ selfPrev.row, selfCurr.col }; // undo row movement only
+    Position undoCol{ selfCurr.row, selfPrev.col }; // undo col movement only
 
-    // Test: if we undo ONLY row movement, do we stop overlapping?
-    Position undoRow = { selfPrev.row, selfCurr.col };
     bool stillHitIfUndoRow = pixelsOverlapAt(self, undoRow, other, otherCurr);
-
-    // Test: if we undo ONLY col movement, do we stop overlapping?
-    Position undoCol = { selfCurr.row, selfPrev.col };
     bool stillHitIfUndoCol = pixelsOverlapAt(self, undoCol, other, otherCurr);
 
-    // If undoing row fixes collision => row caused it => bounce row.
-    bool bounceRow = !stillHitIfUndoRow;
-    // If undoing col fixes collision => col caused it => bounce col.
-    bool bounceCol = !stillHitIfUndoCol;
+    bool bounceRow = !stillHitIfUndoRow; // if undoing row fixes overlap -> row axis caused collision
+    bool bounceCol = !stillHitIfUndoCol; // if undoing col fixes overlap -> col axis caused collision
 
-    // Corner case: both tests still overlap (or both resolve).
-    // If both resolve, reflect both (true corner hit).
-    // If neither resolves (rare with weird shapes), fall back to delta.
-    if (!bounceRow && !bounceCol) {
-        int dRow = selfCurr.row - selfPrev.row;
-        int dCol = selfCurr.col - selfPrev.col;
-        bounceRow = (dRow != 0);
-        bounceCol = (dCol != 0);
+    // 2) If geometry is ambiguous, fall back to RELATIVE motion
+    // Ambiguous cases:
+    // - both undo tests still collide (weird shapes / deep overlap)
+    // - both undo tests resolve (true corner hit)
+    if (bounceRow == bounceCol) {
+        int selfDr  = selfCurr.row  - selfPrev.row;
+        int selfDc  = selfCurr.col  - selfPrev.col;
+        int otherDr = otherCurr.row - otherPrev.row;
+        int otherDc = otherCurr.col - otherPrev.col;
+
+        int relDr = selfDr - otherDr;
+        int relDc = selfDc - otherDc;
+
+        // Prefer single-axis when possible
+        if (std::abs(relDr) > std::abs(relDc)) { bounceRow = true;  bounceCol = false; }
+        else if (std::abs(relDc) > std::abs(relDr)) { bounceRow = false; bounceCol = true; }
+        else { bounceRow = true; bounceCol = true; } // true corner tie
     }
 
+    // 3) Apply to movement components
     for (auto &m : self.movementComponents()) {
         if (auto sm = dynamic_cast<StraightMovement*>(m.get())) {
             if (bounceRow) sm->reverseRow();
             if (bounceCol) sm->reverseCol();
-        } else if (auto gm = dynamic_cast<GravityMovement*>(m.get())) {
-            // gravity bounce: only if it was moving along the bounced axis
+        }
+        else if (auto gm = dynamic_cast<GravityMovement*>(m.get())) {
             if ((bounceRow && gm->affectsRow()) || (bounceCol && gm->affectsCol()))
                 gm->bounce(3);
         }
@@ -128,11 +134,10 @@ void GameBoard::tick(GameState &state) {
 
                 // Correct velocity SECOND
                 if (ra == CollisionResult::Bounce)
-                    applyBounce(a, b, aPrev, aCurr, bCurr);
+                    applyBounce(a, b, aPrev, aCurr, bPrev, bCurr);
 
                 if (rb == CollisionResult::Bounce)
-                    applyBounce(b, a, bPrev, bCurr, aCurr);
-
+                    applyBounce(b, a, bPrev, bCurr, aPrev, aCurr);
             }
         }
     }
