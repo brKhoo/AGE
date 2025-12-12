@@ -7,9 +7,15 @@
 #include "entity.h"
 #include "gameState.h"
 
+enum class BorderType{
+    Solid,
+    View
+};
+
 class GameBoard {
     int rows_;
     int cols_;
+    BorderType borderType = BorderType::Solid;
     std::vector<std::unique_ptr<Entity>> ents;
 public:
     GameBoard(int r, int c) : rows_{r}, cols_{c} {}
@@ -19,6 +25,14 @@ public:
 
     void addEntity(std::unique_ptr<Entity> e) {
         ents.push_back(std::move(e));
+    }
+
+    void setBorder(std::string border){
+        if(border == "Solid" || border == "solid"){
+            borderType = BorderType::Solid;
+        }else if(border == "View" || border == "view"){
+            borderType = BorderType::View;
+        }
     }
 
     std::vector<std::unique_ptr<Entity>> &entities() { return ents; }

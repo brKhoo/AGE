@@ -9,7 +9,7 @@ GameEngine::GameEngine(int rows, int cols): board(rows, cols) {
     keypad(stdscr, TRUE);
     nodelay(stdscr, TRUE);
     timeout(0);
-
+    
     state.bindStatus("Status1", 1);
     state.bindStatus("Status2", 2);
     state.bindStatus("Status3", 3);
@@ -22,6 +22,10 @@ GameEngine::GameEngine(int rows, int cols): board(rows, cols) {
 
 GameEngine::~GameEngine(){
     endwin();
+}
+
+void GameEngine::setBorder(const std::string &border) {
+    board.setBorder(border);
 }
 
 void GameEngine::addEntity(std::unique_ptr<Entity> e) {

@@ -27,6 +27,25 @@ bool pixelsOverlap(const Entity &a, const Entity &b) {
     return false;
 }
 
+static bool touchesBorderAt(
+    const Entity &e,
+    Position base,
+    int top, int left, int bottom, int right
+) {
+    for (const Pixel &px : e.shape().pixels()) {
+        int r = base.row + px.rowOffset;
+        int c = base.col + px.colOffset;
+
+        if (r < top || r > bottom || c < left || c > right)
+            return true;
+    }
+    return false;
+}
+
+static bool touchesBorder(const Entity &e, int top, int left, int bottom, int right) {
+    return touchesBorderAt(e, e.position(), top, left, bottom, right);
+}
+
 static bool pixelsOverlapAt(const Entity &a, Position posA,
                             const Entity &b, Position posB) {
     const auto &pa = a.shape().pixels();
@@ -94,6 +113,35 @@ static void applyBounce(Entity &self,
     }
 }
 
+void applyBorderBounce(
+    Entity &e,
+    Position prev,
+    Position curr,
+    int top, int left, int bottom, int right
+) {
+    bool bounceRow = false;
+    bool bounceCol = false;
+
+    if (prev.row >= top && curr.row < top)        bounceRow = true;
+    if (prev.row <= bottom && curr.row > bottom)  bounceRow = true;
+
+    if (prev.col >= left && curr.col < left)      bounceCol = true;
+    if (prev.col <= right && curr.col > right)    bounceCol = true;
+
+    for (auto &m : e.movementComponents()) {
+        if (auto sm = dynamic_cast<StraightMovement*>(m.get())) {
+            if (bounceRow) sm->reverseRow();
+            if (bounceCol) sm->reverseCol();
+        }
+        else if (auto gm = dynamic_cast<GravityMovement*>(m.get())) {
+            if (bounceRow || bounceCol)
+                gm->bounce(3);
+        }
+    }
+}
+
+
+
 void GameBoard::tick(GameState &state) {
     // 1) Apply movements + per-entity logic
     for (auto &e : ents) {
@@ -104,7 +152,63 @@ void GameBoard::tick(GameState &state) {
         }
     }
 
-    // 2) Handle collisions
+    // 2) Border handling
+    // Board bounds
+    int top = 1;
+    int left = 1;
+    int bottom = rows() - 5;   // matches your view
+    int right = cols() - 2;
+
+    if (borderType == BorderType::Solid) {
+        for (auto &up : ents) {
+            Entity &e = *up;
+            if (e.isMarkedForRemoval()) continue;
+
+            bool wasOutside = touchesBorderAt(
+                e, e.prevPosition(),
+                top, left, bottom, right
+            );
+
+            bool isOutside = touchesBorder(
+                e, top, left, bottom, right
+            );
+
+            // Only block if entity CROSSED the border this tick
+            if (!wasOutside && isOutside) {
+                Position prev = e.prevPosition();
+                Position curr = e.position();
+
+                CollisionResult r = e.collisionRule().handle(e, e, state);
+                e.revertPosition();
+
+                // Apply bounce if entity has bounce collision
+                if (r == CollisionResult::Bounce) {
+                    applyBorderBounce(e, prev, curr, top, left, bottom, right);
+                }
+                if (r == CollisionResult::Destroy) {
+                    e.markForRemoval();
+                }
+            }
+        }
+    }else if (borderType == BorderType::View) {
+        for (auto &up : ents) {
+            Entity &e = *up;
+            if (e.isMarkedForRemoval()) continue;
+            if (touchesBorder(e, top, left, bottom, right)) {
+                if (e.isPlayerControlled()) {
+                    e.revertPosition(); // player cannot leave
+                } else {
+                    e.setOffScreenTicks(e.getOffScreenTicks()+1);
+                    if (e.getOffScreenTicks() > e.getMaxOffScreenTicks())
+                        e.markForRemoval();
+                }
+            } else {
+                e.setOffScreenTicks(0);
+            }
+        }
+    }
+
+    // 3) Handle collisions
     const std::size_t n = ents.size();
     for (std::size_t i = 0; i < n; ++i) {
         Entity &a = *ents[i];
@@ -143,7 +247,7 @@ void GameBoard::tick(GameState &state) {
         }
     }
 
-    // 3) Remove entities marked for removal
+    // 4) Remove entities marked for removal
     ents.erase(
         std::remove_if(
             ents.begin(), ents.end(),

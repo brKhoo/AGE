@@ -1,4 +1,6 @@
 #include "entity.h"
+#include "gameState.h"
+#include "gameBoard.h"
 #include "movement.h"
 #include "collision.h"
 

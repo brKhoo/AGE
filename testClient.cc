@@ -1,22 +1,17 @@
 #include <memory>
 #include <vector>
 
-#include "gameBoard.h"
-#include "testBoard.h"
-#include "gameState.h"
 #include "movement.h"
 #include "collision.h"
 #include "playerEntity.h"
 #include "enemyEntity.h"
-#include "cursesView.h"
-#include "cursesInput.h"
 #include "gameEngine.h"
 #include "shape.h"
 
 int main() {
     // Game spec: 80x25 total, 3 status lines at bottom
     GameEngine engine(25, 80);
-
+    engine.setBorder("View");
     // Set up status variables
     engine.defineStatus(1, "Lives", 3);
     engine.defineStatus(2, "Name", "Brock");
@@ -43,7 +38,7 @@ int main() {
     // Player entity in the middle
     auto player = std::make_unique<PlayerEntity>(std::make_unique<RectShape>(4, 2, 'P'));
     player->setPosition({10, 10});
-    player->setHeight(0);
+    player->setHeight(1);
     player->setHealth(3);
     player->addMovement(std::make_unique<PlayerMovement>());
     player->setCollision(std::make_unique<WinCollision>());
@@ -54,7 +49,8 @@ int main() {
     enemy->setPosition({5,6});
     enemy->setHeight(0);
     enemy->setHealth(3);
-    enemy->setCollision(std::make_unique<DamageCollision>(1));
+    enemy->addMovement(std::make_unique<StraightMovement>(1, 1));
+    enemy->setCollision(std::make_unique<BounceCollision>());
     engine.addEntity(std::move(enemy));
 
     // Gravity object that falls down

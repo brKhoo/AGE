@@ -21,6 +21,9 @@ protected:
     int health = 1; // Default 1 health point
     int damageCooldown = 0; // number of ticks before entity can take damage again
     bool removeFlag = false;
+    int offScreenTicks = 0;
+    int maxOffScreenTicks = 10;
+    bool isPlayer = false;
 
     std::unique_ptr<Shape> shapePtr;
     std::vector<std::unique_ptr<Movement>> movements;
@@ -34,6 +37,13 @@ public:
         int hp = 1
     );
     virtual ~Entity();
+
+    void markPlayer(bool b = true) { isPlayer = b; }
+    bool isPlayerControlled() { return isPlayer; }
+    int getOffScreenTicks() { return offScreenTicks; }
+    void setOffScreenTicks(int t) { offScreenTicks = t; }
+    int getMaxOffScreenTicks() { return maxOffScreenTicks; }
+    void setMaxOffScreenTicks(int t) { maxOffScreenTicks = t; }
 
     void setHealth(int h){ health = h; }
     int getHealth() const { return health; }

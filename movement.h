@@ -12,6 +12,7 @@ public:
 
     virtual bool affectsRow() const { return false; }
     virtual bool affectsCol() const { return false; }
+
     virtual void reverseRow() {}
     virtual void reverseCol() {}
 };
@@ -30,23 +31,22 @@ public:
 
 class GravityMovement : public Movement {
     char dir;
-    int bounceTicks = 0; // Temporarily switch directions and then go back to prev dir to simulate bounce
+    int bounceTicks = 0;
 public:
-    GravityMovement(char c): dir{c} {}
+    GravityMovement(char c) : dir(c) {}
     void apply(Entity &e, GameState &state) override;
 
     bool affectsRow() const override {
         return dir == 'u' || dir == 'd';
     }
-
     bool affectsCol() const override {
         return dir == 'l' || dir == 'r';
     }
-
-    void bounce(int ticks = 1){
+    void bounce(int ticks = 1) {
         bounceTicks = ticks;
     }
 };
+
 
 class CyclingMovement : public Movement {
     int ticks = 0;  // Counts ticks

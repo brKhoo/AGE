@@ -19,6 +19,8 @@ public:
     ~GameEngine();
     void run();
 
+    void setBorder(const std::string &border);
+
     // Name a status line
     void defineStatus(int line, const std::string &name);
 
