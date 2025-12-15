@@ -40,7 +40,6 @@ public:
     virtual ~Entity();
 
     void markPlayer(bool b = true) { isPlayer = b; }
-    bool isPlayerControlled() { return isPlayer; }
     int getOffScreenTicks() { return offScreenTicks; }
     void setOffScreenTicks(int t) { offScreenTicks = t; }
     int getMaxOffScreenTicks() { return maxOffScreenTicks; }

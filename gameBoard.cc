@@ -159,16 +159,6 @@ void GameBoard::tick(GameState &state){
         for(auto &up:ents){
             Entity &e = *up;
             if(e.isMarkedForRemoval()) continue;
-
-            bool wasOutside = touchesBorderAt(
-                e, e.prevPosition(),
-                top, left, bottom, right
-            );
-
-            bool isOutside = touchesBorder(
-                e, top, left, bottom, right
-            );
-
             // Only block if entity crossed the border this tick
             if(touchesBorderAt(e, e.position(), top, left, bottom, right) &&
                 !touchesBorderAt(e, e.prevPosition(), top, left, bottom, right)){
@@ -191,8 +181,16 @@ void GameBoard::tick(GameState &state){
         for(auto &up:ents){
             Entity &e = *up;
             if(e.isMarkedForRemoval()) continue;
-            if(touchesBorder(e, top, left, bottom, right)){
-                if(e.isPlayerControlled()){
+            if(touchesBorderAt(e, e.position(), top, left, bottom, right) && 
+            !touchesBorderAt(e, e.prevPosition(), top, left, bottom, right)){
+                // Check if its the player
+                bool isPlayer = false;
+                for(const auto &m:e.movementComponents()){
+                    if(dynamic_cast<PlayerMovement*>(m.get())) {
+                        isPlayer = true;
+                    }
+                }
+                if(isPlayer){
                     e.revertPosition(); // player cannot leave the bounds
                 }else{
                     e.setOffScreenTicks(e.getOffScreenTicks()+1);
